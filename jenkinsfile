@@ -1,0 +1,57 @@
+pipeline {
+  agent any
+
+  environment {
+    COMPOSE = "docker-compose"
+  }
+
+  stages {
+    stage('Preparar entorno') {
+      steps {
+        echo "Iniciando entorno Docker..."
+        sh "${COMPOSE} up -d --build"
+      }
+    }
+
+    stage('Migraciones Backend') {
+      steps {
+        echo "Ejecutando migraciones Django..."
+        sh "${COMPOSE} exec backend python manage.py migrate"
+      }
+    }
+
+    stage('Tests Backend') {
+      steps {
+        echo "Ejecutando pruebas en Django..."
+        sh "${COMPOSE} exec backend python manage.py test"
+      }
+    }
+
+    stage('Tests Frontend') {
+      steps {
+        echo "Ejecutando pruebas en React..."
+        sh "${COMPOSE} exec frontend npm test -- --watchAll=false"
+      }
+    }
+
+    stage('Build Frontend') {
+      steps {
+        echo "Construyendo frontend React..."
+        sh "${COMPOSE} exec frontend npm run build"
+      }
+    }
+
+    stage('Fin del Pipeline') {
+      steps {
+        echo "✅ Pipeline finalizado con éxito."
+      }
+    }
+  }
+
+  post {
+    always {
+      echo 'Cerrando contenedores...'
+      sh "${COMPOSE} down"
+    }
+  }
+}
