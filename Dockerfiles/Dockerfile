@@ -12,14 +12,17 @@ COPY --from=build /app/build /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 
-FROM python:3.11-slim
+# Etapa de desarrollo
+FROM node:18
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+WORKDIR /app
 
-WORKDIR /code
+COPY package.json ./
+COPY package-lock.json ./
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN npm install
 
 COPY . .
+
+CMD ["npm", "start"]
+
