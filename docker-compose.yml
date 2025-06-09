@@ -49,6 +49,7 @@ volumes:
     depends_on:
       - backend
       - frontend
+      
 
 volumes:
   postgres_data:

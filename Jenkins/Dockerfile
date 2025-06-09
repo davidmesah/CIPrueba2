@@ -7,3 +7,4 @@ RUN apt-get update && \
     echo "jenkins ALL=NOPASSWD: ALL" >> /etc/sudoers
 
 USER jenkins
+
