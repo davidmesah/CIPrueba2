@@ -10,6 +10,7 @@ function App() {
   const [newNote, setNewNote] = useState('');
   const [editingNote, setEditingNote] = useState(null);
   const [editText, setEditText] = useState('');
+  const [sortBy, setSortBy] = useState('newest'); // 'newest', 'oldest', 'alphabetical'
 
   // Save notes to localStorage whenever they change
   useEffect(() => {
@@ -55,31 +56,57 @@ function App() {
     setEditText('');
   };
 
+  const getSortedNotes = () => {
+    const sortedNotes = [...notes];
+    switch (sortBy) {
+      case 'newest':
+        return sortedNotes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      case 'oldest':
+        return sortedNotes.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+      case 'alphabetical':
+        return sortedNotes.sort((a, b) => a.text.localeCompare(b.text));
+      default:
+        return sortedNotes;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4">
       <div className="max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">Mis Notas Semestrales</h1>
         
-        <form onSubmit={handleAddNote} className="mb-8">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={newNote}
-              onChange={(e) => setNewNote(e.target.value)}
-              placeholder="Escribe una nueva nota..."
-              className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button
-              type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-            >
-              Agregar
-            </button>
-          </div>
-        </form>
+        <div className="flex justify-between items-center mb-8">
+          <form onSubmit={handleAddNote} className="flex-1 mr-4">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newNote}
+                onChange={(e) => setNewNote(e.target.value)}
+                placeholder="Escribe una nueva nota..."
+                className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="submit"
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                Agregar
+              </button>
+            </div>
+          </form>
+
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          >
+            <option value="newest">Más recientes</option>
+            <option value="oldest">Más antiguas</option>
+            <option value="alphabetical">Alfabético</option>
+          </select>
+        </div>
 
         <div className="space-y-4">
-          {notes.map(note => (
+          {getSortedNotes().map(note => (
             <div
               key={note.id}
               className="bg-white p-4 rounded-lg shadow-md"
