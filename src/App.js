@@ -11,6 +11,7 @@ function App() {
   const [editingNote, setEditingNote] = useState(null);
   const [editText, setEditText] = useState('');
   const [sortBy, setSortBy] = useState('newest'); // 'newest', 'oldest', 'alphabetical'
+  const [searchQuery, setSearchQuery] = useState(''); // New state for search
 
   // Save notes to localStorage whenever they change
   useEffect(() => {
@@ -70,34 +71,68 @@ function App() {
     }
   };
 
+  // Filter notes based on search query
+  const getFilteredNotes = () => {
+    const sortedNotes = getSortedNotes();
+    if (!searchQuery.trim()) return sortedNotes;
+    
+    return sortedNotes.filter(note => 
+      note.text.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4">
       <div className="max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">Mis Notas Semestrales</h1>
         
-        <div className="flex justify-between items-center mb-8">
-          <form onSubmit={handleAddNote} className="flex-1 mr-4">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={newNote}
-                onChange={(e) => setNewNote(e.target.value)}
-                placeholder="Escribe una nueva nota..."
-                className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        <div className="space-y-4 mb-8">
+          {/* Search Bar */}
+          <div className="relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Buscar notas..."
+              className="w-full p-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <svg
+              className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
               />
-              <button
-                type="submit"
-                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                Agregar
-              </button>
-            </div>
+            </svg>
+          </div>
+
+          {/* Add Note Form */}
+          <form onSubmit={handleAddNote} className="flex gap-2">
+            <input
+              type="text"
+              value={newNote}
+              onChange={(e) => setNewNote(e.target.value)}
+              placeholder="Escribe una nueva nota..."
+              className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              Agregar
+            </button>
           </form>
 
+          {/* Sort Dropdown */}
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           >
             <option value="newest">Más recientes</option>
             <option value="oldest">Más antiguas</option>
@@ -106,7 +141,7 @@ function App() {
         </div>
 
         <div className="space-y-4">
-          {getSortedNotes().map(note => (
+          {getFilteredNotes().map(note => (
             <div
               key={note.id}
               className="bg-white p-4 rounded-lg shadow-md"
@@ -159,8 +194,10 @@ function App() {
               )}
             </div>
           ))}
-          {notes.length === 0 && (
-            <p className="text-center text-gray-500">No hay notas. ¡Agrega una!</p>
+          {getFilteredNotes().length === 0 && (
+            <p className="text-center text-gray-500">
+              {searchQuery ? 'No se encontraron notas que coincidan con la búsqueda.' : 'No hay notas. ¡Agrega una!'}
+            </p>
           )}
         </div>
       </div>
