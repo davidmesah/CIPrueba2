@@ -33,24 +33,18 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-volumes:
-  postgres_data:
-
-  jenkins:
-    build: ./jenkins
-    ports:
+  jenkins_home:
+    
+      build: ./jenkins
+      ports:
       - "8080:8080"
       - "50000:50000"
-    volumes:
+      volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
-    environment:
+      environment:
       - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
-    depends_on:
+      depends_on:
       - backend
       - frontend
-      
-
-volumes:
-  postgres_data:
-  jenkins_home:
+  
