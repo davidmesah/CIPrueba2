@@ -49,8 +49,6 @@ volumes:
     depends_on:
       - backend
       - frontend
-      
-
-volumes:
+  volumes:
   postgres_data:
   jenkins_home:
